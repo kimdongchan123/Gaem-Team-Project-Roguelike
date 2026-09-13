@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e92735684bae794c9b4b093f1e8b8cc, type: 3}
+  m_Name: "\uC6D0\uAC70\uB9AC\uBAAC\uC2A4\uD1304"
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: 
+  monsterType: 0
+  monsterPrefab: {fileID: 454176578049975666, guid: b818708f7a175dc478472729f16f72dd, type: 3}
+  attackPower: 1
+  maxHp: 10
+  moveSpeed: 5
+  attackRange: 10
+  attackSpeed: 5
+  projectilePrefab: {fileID: 0}
