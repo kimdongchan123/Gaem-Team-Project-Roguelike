@@ -3,6 +3,7 @@ using UnityEngine;
 public class MonsterChase : MonoBehaviour
 {
     public Scanner scanner;
+    public MonsterData monsterData;
 
     public float moveSpeed = 5f;
 
