@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2553496712557142789}
   - component: {fileID: 4683237734603143059}
+  - component: {fileID: -7274220442676371925}
+  - component: {fileID: 119087615317521144}
   m_Layer: 0
   m_Name: "\uC6D0\uAC70\uB9AC\uBAAC\uC2A4\uD1302"
   m_TagString: Untagged
@@ -79,7 +81,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -91,3 +93,36 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &-7274220442676371925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967514824277019230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda349467dbecb24fb7d5133763819f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterChase
+  scanner: {fileID: 119087615317521144}
+  monsterData: {fileID: 11400000, guid: c4faea7970506e640be933d0f2de7446, type: 2}
+  moveSpeed: 3
+--- !u!114 &119087615317521144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967514824277019230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ad1640f31511d499047dadab3168b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scanner
+  scanRange: 5
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  targets: []
+  nearestTarget: {fileID: 0}
