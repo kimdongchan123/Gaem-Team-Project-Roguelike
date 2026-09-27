@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: 
   monsterType: 0
-  monsterPrefab: {fileID: 454176578049975666, guid: b818708f7a175dc478472729f16f72dd, type: 3}
+  monsterPrefab: {fileID: 967514824277019230, guid: e145701d5e9a69f418a4c9b662a806a0, type: 3}
   attackPower: 1
   maxHp: 10
   moveSpeed: 5
