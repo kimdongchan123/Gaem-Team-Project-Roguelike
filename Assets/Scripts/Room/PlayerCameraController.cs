@@ -19,23 +19,18 @@ public class PlayerCameraController : MonoBehaviour
     [Header("Aim Look Ahead")]
     [SerializeField] private bool useMouseLookAhead = true;
 
-    [Tooltip("조준 방향으로 카메라가 이동하는 최대 거리")]
     [SerializeField] private float maxAimOffset = 2.5f;
 
-    [Tooltip("마우스가 플레이어에게서 이 거리만큼 떨어졌을 때 최대 Offset 적용")]
     [SerializeField] private float mouseDistanceForMaxOffset = 7f;
 
 
     [Header("Movement Look Ahead")]
-    [Tooltip("플레이어 이동 방향으로 카메라가 추가로 이동하는 거리")]
     [SerializeField] private float movementLookAheadDistance = 0.8f;
 
-    [Tooltip("이 정도 속도에서 최대 이동 Offset 적용")]
     [SerializeField] private float movementSpeedForMaxOffset = 6f;
 
 
     [Header("Limits")]
-    [Tooltip("플레이어와 카메라가 너무 멀어지는 것을 방지")]
     [SerializeField] private float maxTotalOffset = 3f;
 
 
@@ -105,7 +100,6 @@ public class PlayerCameraController : MonoBehaviour
             );
 
 
-        // 2D 카메라이므로 Z 위치는 기존 카메라 값을 유지합니다.
         targetPosition.z = transform.position.z;
 
 
@@ -124,6 +118,7 @@ public class PlayerCameraController : MonoBehaviour
     private Vector2 CalculateAimOffset()
     {
         Vector2 aimDirection;
+
         float strength = 1f;
 
 
@@ -136,6 +131,7 @@ public class PlayerCameraController : MonoBehaviour
             Vector3 mouseWorldPosition = GetMouseWorldPosition();
 
             Vector2 playerPosition = playerTarget.position;
+
 
             Vector2 toMouse =
                 (Vector2)mouseWorldPosition -
@@ -174,6 +170,7 @@ public class PlayerCameraController : MonoBehaviour
     private Vector2 CalculateMovementOffset()
     {
         Vector2 currentPosition = playerTarget.position;
+
 
         Vector2 movementDelta =
             currentPosition -
@@ -242,13 +239,9 @@ public class PlayerCameraController : MonoBehaviour
 
 #else
 
-        Vector3 mouseScreenPosition =
-            Input.mousePosition;
-
-
         Vector3 worldPosition =
             cameraComponent.ScreenToWorldPoint(
-                mouseScreenPosition
+                Input.mousePosition
             );
 
 
@@ -260,9 +253,6 @@ public class PlayerCameraController : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 실제 플레이어 조준 시스템이 완성된 후 사용할 수 있습니다.
-    /// </summary>
     public void SetAimDirection(Vector2 direction)
     {
         externalAimDirection = direction;
@@ -271,9 +261,6 @@ public class PlayerCameraController : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 다시 마우스 기준 조준 카메라로 전환합니다.
-    /// </summary>
     public void ClearExternalAimDirection()
     {
         useExternalAimDirection = false;
@@ -284,10 +271,10 @@ public class PlayerCameraController : MonoBehaviour
     {
         playerTarget = newTarget;
 
+
         if (playerTarget != null)
         {
-            previousPlayerPosition =
-                playerTarget.position;
+            previousPlayerPosition = playerTarget.position;
         }
     }
 }
