@@ -164,7 +164,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2c2380be79e7a84dae4684f604b522b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomCameraBounds
-  boundsCollider: {fileID: 12774440}
 --- !u!61 &12774440
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1574,7 +1573,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2c2380be79e7a84dae4684f604b522b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomCameraBounds
-  boundsCollider: {fileID: 819295478}
 --- !u!61 &819295478
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2300,7 +2298,8 @@ MonoBehaviour:
   roomType: 1
   requiresClearToExit: 1
   startCleared: 0
-  doorBlockers: []
+  doorBlockers:
+  - {fileID: 436407619}
   showDebugLog: 1
 --- !u!61 &1242860593
 BoxCollider2D:
