@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &835330070172248661
+--- !u!1 &7335544832338889402
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,41 +8,39 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5168987496653371379}
-  - component: {fileID: 6113115739021815213}
-  - component: {fileID: 5667519138178369535}
-  - component: {fileID: -2451132326190451660}
-  - component: {fileID: 5675150212723084626}
+  - component: {fileID: 282246646369190436}
+  - component: {fileID: 6528156396298153108}
+  - component: {fileID: -7693591233652538091}
   m_Layer: 0
-  m_Name: "\uC790\uD3ED\uBAAC\uC2A4\uD1301"
+  m_Name: Circle (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5168987496653371379
+--- !u!4 &282246646369190436
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835330070172248661}
+  m_GameObject: {fileID: 7335544832338889402}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6113115739021815213
+--- !u!212 &6528156396298153108
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835330070172248661}
+  m_GameObject: {fileID: 7335544832338889402}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -84,8 +82,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -94,59 +92,17 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &5667519138178369535
+--- !u!114 &-7693591233652538091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835330070172248661}
+  m_GameObject: {fileID: 7335544832338889402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ad1640f31511d499047dadab3168b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 76df07a32f7f3a446a5dd0506cd1fcae, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Scanner
-  scanRange: 2
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  targets: []
-  nearestTarget: {fileID: 0}
---- !u!114 &-2451132326190451660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835330070172248661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 196646fa855803d43858f861cce288ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SuicideMonster
-  scanner: {fileID: 5667519138178369535}
-  chaseSpeed: 8
-  explodeRange: 1.5
-  countdownDuration: 2
-  explosionDamage: 999
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  warningSound: {fileID: 0}
-  explosionIndicatorPrefab: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
---- !u!114 &5675150212723084626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835330070172248661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fda349467dbecb24fb7d5133763819f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterChase
-  scanner: {fileID: 5667519138178369535}
-  monsterData: {fileID: 11400000, guid: 48d35f314d13aa544aa0528b2ed9c8aa, type: 2}
-  moveSpeed: 5
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterProjectile
+  speed: 8
+  lifeTime: 3

@@ -10,6 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4372519175924563690}
   - component: {fileID: 8577994109562447572}
+  - component: {fileID: -2546599098035159744}
+  - component: {fileID: 3383194495403964956}
+  - component: {fileID: -4546577274375195376}
   m_Layer: 0
   m_Name: "\uBE68\uB77C\uC9C0\uB294 \uADFC\uAC70\uB9AC \uBAAC\uC2A4\uD130"
   m_TagString: Untagged
@@ -91,3 +94,59 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &-2546599098035159744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7602109634037469501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ad1640f31511d499047dadab3168b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scanner
+  scanRange: 10
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  targets: []
+  nearestTarget: {fileID: 0}
+--- !u!114 &3383194495403964956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7602109634037469501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1535f8cc580349245a3d1789d1478b5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AcceleratingMonster
+  monsterData: {fileID: 11400000, guid: c49c202e4c7c1ac48ada04f96d6bcf19, type: 2}
+  firePoint: {fileID: 0}
+  bulletCount: 5
+  spreadAngle: 60
+  baseSpeed: 2
+  tier1Distance: 5
+  tier1Speed: 5
+  tier2Distance: 10
+  tier2Speed: 10
+  tier3Distance: 20
+  tier3Speed: 20
+--- !u!114 &-4546577274375195376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7602109634037469501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda349467dbecb24fb7d5133763819f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterChase
+  scanner: {fileID: -2546599098035159744}
+  monsterData: {fileID: 11400000, guid: c49c202e4c7c1ac48ada04f96d6bcf19, type: 2}
+  moveSpeed: 5

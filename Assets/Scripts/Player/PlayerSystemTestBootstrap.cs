@@ -7,7 +7,7 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
 
     private Transform followTarget;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void CreateTestScene()
     {
         if (FindAnyObjectByType<PlayerHealth>() != null)

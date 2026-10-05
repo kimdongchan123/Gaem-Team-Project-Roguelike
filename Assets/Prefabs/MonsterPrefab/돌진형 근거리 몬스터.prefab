@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4389178260562190546}
   - component: {fileID: -8475610993851086609}
   - component: {fileID: 966963229092590033}
+  - component: {fileID: 7093425343723665389}
   m_Layer: 0
   m_Name: "\uB3CC\uC9C4\uD615 \uADFC\uAC70\uB9AC \uBAAC\uC2A4\uD130"
   m_TagString: Untagged
@@ -105,10 +106,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62ad1640f31511d499047dadab3168b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scanner
-  scanRange: 0
+  scanRange: 10
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  targets: []
   nearestTarget: {fileID: 0}
 --- !u!114 &966963229092590033
 MonoBehaviour:
@@ -123,5 +125,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterChase
   scanner: {fileID: -8475610993851086609}
-  monsterData: {fileID: 0}
+  monsterData: {fileID: 11400000, guid: 43db75ad7645c744b8c9b12ddff8921e, type: 2}
   moveSpeed: 5
+--- !u!114 &7093425343723665389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4490553361691909413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e366ff65004c45e46a85cdd6e85e4f6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChargeMonster
+  scanner: {fileID: -8475610993851086609}
+  monsterData: {fileID: 11400000, guid: 43db75ad7645c744b8c9b12ddff8921e, type: 2}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  telegraphDuration: 1
+  chargeDistance: 10
+  chargeCooldown: 3

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e92735684bae794c9b4b093f1e8b8cc, type: 3}
   m_Name: "\uC6D0\uAC70\uB9AC\uBAAC\uC2A4\uD1301"
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  monsterName: 
+  monsterName: "\uC6D0\uAC70\uB9AC\uBAAC\uC2A4\uD1301"
   monsterType: 0
   monsterPrefab: {fileID: 454176578049975666, guid: b818708f7a175dc478472729f16f72dd, type: 3}
   attackPower: 1
