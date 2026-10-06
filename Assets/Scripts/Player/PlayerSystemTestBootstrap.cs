@@ -7,7 +7,7 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
 
     private Transform followTarget;
 
-    //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void CreateTestScene()
     {
         if (FindAnyObjectByType<PlayerHealth>() != null)
@@ -72,6 +72,7 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
         collider.radius = 0.35f;
 
         playerObject.AddComponent<PlayerHealth>();
+        PlayerMana playerMana = playerObject.AddComponent<PlayerMana>();
         playerObject.AddComponent<PlayerInventory>();
         playerObject.AddComponent<PlayerMovement>();
 
@@ -83,7 +84,11 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
         weaponController.SetTestWeaponData(
             CreateTestWeapons(),
             firePointObject.transform,
-            CreateProjectilePrefab(monsterLayer));
+            CreateProjectilePrefab(monsterLayer, playerLayer),
+            LayerMask.GetMask("Monster"));
+
+        PlayerWeaponHud weaponHud = playerObject.AddComponent<PlayerWeaponHud>();
+        weaponHud.SetTarget(weaponController, playerObject.GetComponent<PlayerHealth>(), playerMana);
 
         return playerObject;
     }
@@ -113,19 +118,55 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
     private static WeaponData[] CreateTestWeapons()
     {
         WeaponData ak47Data = ScriptableObject.CreateInstance<WeaponData>();
-        ak47Data.SetTestData("AK47", WeaponGrade.Normal, 1, 0.12f, 16f, 1.2f, 1, 0f);
+        ak47Data.SetTestData("AK47", WeaponGrade.Normal, WeaponAttackType.StraightProjectile, false, 1, 0.12f, 16f, 1.2f, 0, 1, 0f, 0f, 0f, 0f, 0f);
+
+        WeaponData rocketLauncherData = ScriptableObject.CreateInstance<WeaponData>();
+        rocketLauncherData.SetTestData("Rocket Launcher", WeaponGrade.Rare, WeaponAttackType.ExplosiveProjectile, false, 1, 0.8f, 9f, 1.2f, 0, 1, 0f, 1.4f, 0f, 0f, 0f);
 
         WeaponData shotgunData = ScriptableObject.CreateInstance<WeaponData>();
-        shotgunData.SetTestData("Shotgun", WeaponGrade.Normal, 1, 0.65f, 13f, 0.8f, 5, 35f);
+        shotgunData.SetTestData("Shotgun", WeaponGrade.Normal, WeaponAttackType.SpreadProjectile, false, 1, 0.65f, 13f, 0.8f, 0, 5, 35f, 0f, 0f, 0f, 0f);
 
-        return new[] { ak47Data, shotgunData };
+        WeaponData m249Data = ScriptableObject.CreateInstance<WeaponData>();
+        m249Data.SetTestData("M249", WeaponGrade.Rare, WeaponAttackType.StraightProjectile, false, 1, 0.06f, 17f, 1.2f, 0, 1, 0f, 0f, 0f, 0f, 0f);
+
+        WeaponData axeData = ScriptableObject.CreateInstance<WeaponData>();
+        axeData.SetTestData("Axe", WeaponGrade.Normal, WeaponAttackType.Melee, false, 1, 0.35f, 0f, 0f, 0, 1, 0f, 0f, 1.1f, 100f, 0f);
+
+        WeaponData swissData = ScriptableObject.CreateInstance<WeaponData>();
+        swissData.SetTestData("Swiss Dagger", WeaponGrade.Normal, WeaponAttackType.Melee, false, 1, 0.18f, 0f, 0f, 0, 1, 0f, 0f, 0.8f, 80f, 0f);
+
+        WeaponData fireBallData = ScriptableObject.CreateInstance<WeaponData>();
+        fireBallData.SetTestData("Fire Ball", WeaponGrade.Rare, WeaponAttackType.TargetExplosion, true, 1, 0.7f, 8f, 1.5f, 1, 1, 0f, 1.5f, 0f, 0f, 0f);
+
+        WeaponData guidedMissileData = ScriptableObject.CreateInstance<WeaponData>();
+        guidedMissileData.SetTestData("Guided Missile", WeaponGrade.Rare, WeaponAttackType.HomingProjectile, true, 1, 0.8f, 8f, 2f, 1, 2, 18f, 0f, 0f, 0f, 0f);
+
+        WeaponData blackHoleGunData = ScriptableObject.CreateInstance<WeaponData>();
+        blackHoleGunData.SetTestData("Black Hole Gun", WeaponGrade.Rare, WeaponAttackType.BlackHole, true, 1, 1.2f, 0f, 0f, 1, 1, 0f, 1.8f, 0f, 0f, 2.5f);
+
+        WeaponData magicGatlingData = ScriptableObject.CreateInstance<WeaponData>();
+        magicGatlingData.SetTestData("Magic Gatling", WeaponGrade.Rare, WeaponAttackType.MagicRapidProjectile, true, 1, 0.04f, 18f, 1.1f, 1, 1, 0f, 0f, 0f, 0f, 0f);
+
+        return new[]
+        {
+            ak47Data,
+            rocketLauncherData,
+            shotgunData,
+            m249Data,
+            axeData,
+            swissData,
+            fireBallData,
+            guidedMissileData,
+            blackHoleGunData,
+            magicGatlingData
+        };
     }
 
-    private static PlayerProjectile CreateProjectilePrefab(int monsterLayer)
+    private static PlayerProjectile CreateProjectilePrefab(int monsterLayer, int playerLayer)
     {
         GameObject projectileObject = new GameObject("Test_Bullet");
         projectileObject.SetActive(false);
-        projectileObject.layer = monsterLayer;
+        projectileObject.layer = LayerMask.NameToLayer("Default");
 
         SpriteRenderer spriteRenderer = projectileObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = CreateSprite(new Color(1f, 0.95f, 0.25f));
@@ -134,6 +175,7 @@ public class PlayerSystemTestBootstrap : MonoBehaviour
 
         PlayerProjectile projectile = projectileObject.AddComponent<PlayerProjectile>();
         projectile.SetTargetLayer(LayerMask.GetMask("Monster"));
+        projectile.SetPlayerLayer(LayerMask.GetMask("Player"));
 
         return projectile;
     }
