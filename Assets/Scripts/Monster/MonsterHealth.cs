@@ -1,35 +1,59 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class MonsterHealth : MonoBehaviour
 {
     [Header("Health")]
-    [SerializeField] private int maxHealth = 3;
+    [FormerlySerializedAs("maxHealth")]
+    [SerializeField] private int maxHp = 3;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLog;
 
-    private int currentHealth;
+    private int currentHp;
     private bool isDead;
 
-    public int CurrentHealth => currentHealth;
+    public int CurrentHealth => currentHp;
     public bool IsDead => isDead;
 
     private void Awake()
     {
-        currentHealth = maxHealth;
+        currentHp = maxHp;
+    }
+
+    public void Init(MonsterData data)
+    {
+        maxHp = Mathf.RoundToInt(data.maxHp);
+        currentHp = maxHp;
     }
 
     public void TakeDamage(int damageAmount)
+    {
+        ApplyDamage(damageAmount);
+    }
+
+    public void TakeDamage(int damageAmount, WeaponDamageType weaponType)
+    {
+        EliteMonster elite = GetComponent<EliteMonster>();
+        if (elite != null)
+        {
+            damageAmount = elite.ApplyResistance(damageAmount, weaponType);
+        }
+
+        ApplyDamage(damageAmount);
+    }
+
+    private void ApplyDamage(int damageAmount)
     {
         if (isDead || damageAmount <= 0)
         {
             return;
         }
 
-        currentHealth -= damageAmount;
-        Log($"Monster Hit: {currentHealth}/{maxHealth}");
+        currentHp -= damageAmount;
+        Log($"Monster Hit: {currentHp}/{maxHp}");
 
-        if (currentHealth <= 0)
+        if (currentHp <= 0)
         {
             Die();
         }
@@ -38,7 +62,7 @@ public class MonsterHealth : MonoBehaviour
     private void Die()
     {
         isDead = true;
-        currentHealth = 0;
+        currentHp = 0;
         Log("Monster Dead");
         Destroy(gameObject);
     }

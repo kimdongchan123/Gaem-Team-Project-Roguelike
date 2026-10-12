@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5667519138178369535}
   - component: {fileID: -2451132326190451660}
   - component: {fileID: 5675150212723084626}
+  - component: {fileID: -3564451459016851477}
   m_Layer: 0
   m_Name: "\uC790\uD3ED\uBAAC\uC2A4\uD1301"
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -150,3 +151,17 @@ MonoBehaviour:
   scanner: {fileID: 5667519138178369535}
   monsterData: {fileID: 11400000, guid: 48d35f314d13aa544aa0528b2ed9c8aa, type: 2}
   moveSpeed: 5
+--- !u!114 &-3564451459016851477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835330070172248661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d69716443c80ba84694ee210c49f24a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterHealth
+  maxHp: 3
+  showDebugLog: 0

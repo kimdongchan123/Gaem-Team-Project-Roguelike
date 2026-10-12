@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -8475610993851086609}
   - component: {fileID: 966963229092590033}
   - component: {fileID: 7093425343723665389}
+  - component: {fileID: 6471523475126341917}
   m_Layer: 0
   m_Name: "\uB3CC\uC9C4\uD615 \uADFC\uAC70\uB9AC \uBAAC\uC2A4\uD130"
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -147,3 +148,18 @@ MonoBehaviour:
   telegraphDuration: 1
   chargeDistance: 10
   chargeCooldown: 3
+  approachSpeed: 3
+--- !u!114 &6471523475126341917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4490553361691909413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d69716443c80ba84694ee210c49f24a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterHealth
+  maxHp: 3
+  showDebugLog: 0

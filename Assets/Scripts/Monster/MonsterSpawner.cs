@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MonsterSpawner : MonoBehaviour
@@ -5,6 +6,10 @@ public class MonsterSpawner : MonoBehaviour
     public MonsterData[] monsterDataList;
     public Vector2 spawnAreaSize = new Vector2(10f, 10f);
     public Transform spawnAreaCenter;
+    public float minSpawnDistance = 1.5f;
+    public int maxSpawnAttempts = 30;
+
+    private readonly List<GameObject> spawnedMonsters = new List<GameObject>();
 
     private void Start()
     {
@@ -33,9 +38,16 @@ public class MonsterSpawner : MonoBehaviour
             return null;
         }
 
-        Vector2 spawnPos = GetRandomPositionInArea();
+        Vector2 spawnPos = GetNonOverlappingPosition();
         GameObject monster = Instantiate(data.monsterPrefab, spawnPos, Quaternion.identity);
         monster.name = data.monsterName;
+        spawnedMonsters.Add(monster);
+
+        MonsterHealth health = monster.GetComponent<MonsterHealth>();
+        if (health != null)
+        {
+            health.Init(data);
+        }
 
         MonsterChase chase = monster.GetComponent<MonsterChase>();
         if (chase != null)
@@ -44,6 +56,55 @@ public class MonsterSpawner : MonoBehaviour
         }
 
         return monster;
+    }
+
+    private Vector2 GetNonOverlappingPosition()
+    {
+        spawnedMonsters.RemoveAll(m => m == null);
+
+        Vector2 bestPosition = GetRandomPositionInArea();
+        float bestDistance = GetNearestMonsterDistance(bestPosition);
+
+        if (bestDistance >= minSpawnDistance)
+        {
+            return bestPosition;
+        }
+
+        for (int i = 1; i < maxSpawnAttempts; i++)
+        {
+            Vector2 candidate = GetRandomPositionInArea();
+            float nearestDistance = GetNearestMonsterDistance(candidate);
+
+            if (nearestDistance >= minSpawnDistance)
+            {
+                return candidate;
+            }
+
+            if (nearestDistance > bestDistance)
+            {
+                bestDistance = nearestDistance;
+                bestPosition = candidate;
+            }
+        }
+
+        Debug.LogWarning("[MonsterSpawner] 겹치지 않는 위치를 찾지 못해 가장 여유 있는 위치에 소환합니다. minSpawnDistance를 줄이거나 스폰 영역을 넓혀보세요.");
+        return bestPosition;
+    }
+
+    private float GetNearestMonsterDistance(Vector2 position)
+    {
+        float nearest = float.MaxValue;
+
+        foreach (GameObject spawned in spawnedMonsters)
+        {
+            float distance = Vector2.Distance(position, spawned.transform.position);
+            if (distance < nearest)
+            {
+                nearest = distance;
+            }
+        }
+
+        return nearest;
     }
 
     private Vector2 GetRandomPositionInArea()

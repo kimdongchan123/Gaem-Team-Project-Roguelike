@@ -15,11 +15,12 @@ public class MonsterData : ScriptableObject
     
     [Header("능력치")] 
     
-    public int attackPower;
-    public int maxHp;
-    public int moveSpeed;
-    public int attackRange;
-    public int attackSpeed;
+    public float attackPower;
+    public float maxHp;
+    public float currentHp;
+    public float moveSpeed;
+    public float attackRange;
+    public float attackSpeed;
 
     [Header("원거리 전용")]
     public GameObject projectilePrefab;
