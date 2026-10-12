@@ -5,7 +5,7 @@ public class MonsterHealth : MonoBehaviour
 {
     [Header("Health")]
     [FormerlySerializedAs("maxHealth")]
-    [SerializeField] private int maxHp = 3;
+    [SerializeField] private int maxHp;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLog;

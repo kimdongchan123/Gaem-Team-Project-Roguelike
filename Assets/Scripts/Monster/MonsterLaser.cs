@@ -149,7 +149,7 @@ public class MonsterLaser : MonoBehaviour
         {
             FireLaser();
 
-            timer = 0f;
+            timer = 1.2f;
 
             currentState = State.Cooldown;
 

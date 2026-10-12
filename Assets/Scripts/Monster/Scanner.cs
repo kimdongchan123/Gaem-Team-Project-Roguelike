@@ -8,7 +8,9 @@ public class Scanner : MonoBehaviour
 
     public Collider2D[] targets;
 
-    public Transform nearestTarget;
+    public Transform nearestTarget;       
+    
+    public MonsterData monsterData;
 
     private void FixedUpdate()
     {
@@ -19,6 +21,7 @@ public class Scanner : MonoBehaviour
         );
 
         nearestTarget = GetNearest();
+        scanRange = monsterData.attackRange;
     }
 
     private Transform GetNearest()
