@@ -12,19 +12,31 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
     private float invincibleEndTime;
     private bool isDead;
+    private PlayerStats stats;
+    private PlayerRunSession session;
+    public bool IsInvincible => Time.time < invincibleEndTime;
 
     public int CurrentHealth => currentHealth;
-    public int MaxHealth => maxHealth;
+    public int MaxHealth => stats != null ? stats.MaxHealth : Mathf.Max(1, maxHealth);
     public bool IsDead => isDead;
 
     private void Awake()
     {
-        currentHealth = maxHealth;
+        stats = GetComponent<PlayerStats>();
+        session = GetComponent<PlayerRunSession>();
+        ResetHealth();
+    }
+
+    public void ResetHealth()
+    {
+        currentHealth = MaxHealth; isDead = false; invincibleEndTime = 0f;
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        if (sprite != null) sprite.color = Color.white;
     }
 
     public void TakeDamage(int damageAmount)
     {
-        if (isDead || damageAmount <= 0 || Time.time < invincibleEndTime)
+        if (isDead || damageAmount <= 0 || Time.time < invincibleEndTime || (session != null && !session.CanAct))
         {
             return;
         }
@@ -47,7 +59,7 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
-        currentHealth = Mathf.Min(currentHealth + healAmount, maxHealth);
+        currentHealth = Mathf.Min(currentHealth + healAmount, MaxHealth);
     }
 
     private void Die()
@@ -61,7 +73,11 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = 0;
 
         PlayerInventory playerInventory = GetComponent<PlayerInventory>();
-        if (playerInventory != null)
+        if (session != null)
+        {
+            session.CompleteDeath();
+        }
+        else if (playerInventory != null)
         {
             playerInventory.DropItemsOnDeath();
         }
