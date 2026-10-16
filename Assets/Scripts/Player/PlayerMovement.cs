@@ -1,133 +1,81 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-50)]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement")]
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float aimAngleOffset;
-
-    [Header("Dash")]
     [SerializeField] private float dashSpeed = 18f;
     [SerializeField] private float dashDuration = 0.15f;
     [SerializeField] private float dashCooldown = 5f;
-
+    [SerializeField] private Transform aimPivot;
     private PlayerHealth playerHealth;
+    private PlayerStats stats;
+    private PlayerRunSession session;
+    private SpriteRenderer body;
     private Vector2 moveInput;
     private Vector2 dashDirection;
     private bool isDashing;
     private float dashEndTime;
     private float nextDashTime;
-
     public bool IsDashing => isDashing;
+    public float DashRemaining => Mathf.Max(0f,nextDashTime-Time.time);
+    public Vector2 AimDirection => aimPivot != null ? (Vector2)aimPivot.right : (Vector2)transform.right;
+    public float MoveSpeed => stats != null ? stats.MoveSpeed : moveSpeed;
+    public float DashCooldown => stats != null ? stats.DashCooldown : dashCooldown;
 
     private void Awake()
     {
-        playerHealth = GetComponent<PlayerHealth>();
+        playerHealth = GetComponent<PlayerHealth>(); stats = GetComponent<PlayerStats>();
+        session = GetComponent<PlayerRunSession>(); body = GetComponent<SpriteRenderer>();
     }
-
+    public void SetAimPivot(Transform pivot) { aimPivot = pivot; }
+    public void ResetMovement() { isDashing = false; moveInput = Vector2.zero; nextDashTime = 0f; }
     private void Update()
     {
-        if (playerHealth != null && playerHealth.IsDead)
-        {
-            moveInput = Vector2.zero;
-            return;
-        }
-
-        ReadMoveInput();
-        LookAtMouse();
-        TryStartDash();
-        UpdateDashState();
-        MovePlayer();
+        if ((playerHealth != null && playerHealth.IsDead) || (session != null && !session.CanAct))
+        { moveInput = Vector2.zero; isDashing = false; return; }
+        ReadMoveInput(); LookAtMouse(); TryStartDash(); UpdateDashState(); MovePlayer();
     }
-
+    public static Vector2 NormalizeMovement(float x, float y) => new Vector2(x,y).normalized;
     private void ReadMoveInput()
     {
-        if (Keyboard.current == null)
-        {
-            moveInput = Vector2.zero;
-            return;
-        }
-
-        float horizontalInput = 0f;
-        float verticalInput = 0f;
-
-        if (Keyboard.current.aKey.isPressed)
-        {
-            horizontalInput -= 1f;
-        }
-
-        if (Keyboard.current.dKey.isPressed)
-        {
-            horizontalInput += 1f;
-        }
-
-        if (Keyboard.current.sKey.isPressed)
-        {
-            verticalInput -= 1f;
-        }
-
-        if (Keyboard.current.wKey.isPressed)
-        {
-            verticalInput += 1f;
-        }
-
-        moveInput = new Vector2(horizontalInput, verticalInput).normalized;
+        Keyboard keys = Keyboard.current;
+        if (keys == null) { moveInput = Vector2.zero; return; }
+        moveInput = NormalizeMovement((keys.dKey.isPressed ? 1f:0f)-(keys.aKey.isPressed ? 1f:0f),
+            (keys.wKey.isPressed ? 1f:0f)-(keys.sKey.isPressed ? 1f:0f));
     }
-
     private void LookAtMouse()
     {
-        if (Mouse.current == null || Camera.main == null)
-        {
-            return;
-        }
-
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-        Vector2 lookDirection = mouseWorldPosition - transform.position;
-
-        if (lookDirection.sqrMagnitude <= 0.001f)
-        {
-            return;
-        }
-
-        float angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle + aimAngleOffset);
+        if (Mouse.current != null && Camera.main != null)
+            AimAt(Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()));
     }
-
+    public void AimAt(Vector2 worldPosition)
+    {
+        Vector2 direction = worldPosition - (Vector2)transform.position;
+        if (direction.sqrMagnitude <= 0.0001f) return;
+        if (body != null) body.flipX = direction.x < 0f;
+        // The body stays upright; only the weapon pivot rotates through 360 degrees.
+        float angle = Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg + aimAngleOffset;
+        if (aimPivot != null) aimPivot.rotation = Quaternion.Euler(0f,0f,angle);
+    }
     private void TryStartDash()
     {
-        if (Keyboard.current == null || !Keyboard.current.leftShiftKey.wasPressedThisFrame)
-        {
-            return;
-        }
-
-        if (Time.time < nextDashTime || moveInput == Vector2.zero)
-        {
-            return;
-        }
-
-        isDashing = true;
-        dashDirection = moveInput;
-        dashEndTime = Time.time + dashDuration;
-        nextDashTime = Time.time + dashCooldown;
+        if (Keyboard.current != null && Keyboard.current.leftShiftKey.wasPressedThisFrame) TryDash();
     }
-
-    private void UpdateDashState()
+    public bool TryDash()
     {
-        if (!isDashing || Time.time < dashEndTime)
-        {
-            return;
-        }
-
-        isDashing = false;
+        if (isDashing || Time.time < nextDashTime || (playerHealth != null && playerHealth.IsDead) ||
+            (session != null && !session.CanAct)) return false;
+        dashDirection = moveInput.sqrMagnitude > 0f ? moveInput : AimDirection.normalized;
+        if (dashDirection.sqrMagnitude <= 0f) return false;
+        isDashing = true; dashEndTime = Time.time+dashDuration; nextDashTime = Time.time+DashCooldown;
+        return true;
     }
-
+    private void UpdateDashState() { if (isDashing && Time.time >= dashEndTime) isDashing = false; }
     private void MovePlayer()
     {
-        Vector2 moveDirection = isDashing ? dashDirection : moveInput;
-        float currentMoveSpeed = isDashing ? dashSpeed : moveSpeed;
-
-        transform.position += (Vector3)(moveDirection * currentMoveSpeed * Time.deltaTime);
+        transform.position += (Vector3)(isDashing ? dashDirection : moveInput) * (isDashing ? dashSpeed : MoveSpeed) * Time.deltaTime;
     }
 }

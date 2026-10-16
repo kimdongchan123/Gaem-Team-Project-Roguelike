@@ -1,5 +1,7 @@
 public enum WeaponGrade
 {
     Normal,
-    Rare
+    Rare,
+    Legendary,
+    Mid
 }

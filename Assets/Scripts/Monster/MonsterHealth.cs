@@ -4,14 +4,16 @@ public class MonsterHealth : MonoBehaviour
 {
     [Header("Health")]
     [SerializeField] private int maxHealth = 3;
+    [SerializeField] private bool isElite;
+    public bool IsElite => isElite;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLog;
 
-    private int currentHealth;
+    private float currentHealth;
     private bool isDead;
 
-    public int CurrentHealth => currentHealth;
+    public float CurrentHealth => currentHealth;
     public bool IsDead => isDead;
 
     private void Awake()
@@ -19,9 +21,24 @@ public class MonsterHealth : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int damageAmount)
+    private void Start()
     {
-        if (isDead || damageAmount <= 0)
+        SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
+        if (sprite == null || sprite.sprite == null) return;
+        GameObject hurtbox = new GameObject("Damage Hurtbox");
+        hurtbox.layer = gameObject.layer;
+        hurtbox.transform.SetParent(transform, false);
+        hurtbox.transform.localPosition = transform.InverseTransformPoint(sprite.bounds.center);
+        Vector3 scale = transform.lossyScale;
+        BoxCollider2D collider = hurtbox.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(sprite.bounds.size.x / Mathf.Max(0.001f, Mathf.Abs(scale.x)) + 0.15f,
+            sprite.bounds.size.y / Mathf.Max(0.001f, Mathf.Abs(scale.y)) + 0.15f);
+    }
+
+    public void TakeDamage(float damageAmount, PlayerRunSession attacker = null)
+    {
+        if (isDead || damageAmount <= 0 || float.IsNaN(damageAmount) || float.IsInfinity(damageAmount))
         {
             return;
         }
@@ -31,15 +48,20 @@ public class MonsterHealth : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Die();
+            Die(attacker);
         }
     }
 
-    private void Die()
+    private void Die(PlayerRunSession attacker)
     {
         isDead = true;
         currentHealth = 0;
         Log("Monster Dead");
+        if (attacker != null && attacker.State == PlayerRunState.Running)
+        {
+            attacker.RecordKill(isElite);
+            WorldPickup.SpawnCrystals(isElite ? 3 : 1, transform.position);
+        }
         Destroy(gameObject);
     }
 
