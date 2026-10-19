@@ -4,56 +4,56 @@ using UnityEngine.Serialization;
 public class MonsterHealth : MonoBehaviour
 {
     [Header("Health")]
-    [FormerlySerializedAs("maxHealth")]
-    [SerializeField] private int maxHp;
+    [SerializeField] private int maxHealth = 3;
+    [SerializeField] private bool isElite;
+    public bool IsElite => isElite;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLog;
 
-    private int currentHp;
+    private float currentHealth;
     private bool isDead;
 
-    public int CurrentHealth => currentHp;
+    public float CurrentHealth => currentHealth;
     public bool IsDead => isDead;
 
     private void Awake()
     {
-        currentHp = maxHp;
+        currentHealth = maxHealth;
     }
 
     public void Init(MonsterData data)
     {
-        maxHp = Mathf.RoundToInt(data.maxHp);
-        currentHp = maxHp;
+        maxHealth = Mathf.RoundToInt(data.maxHp);
+        currentHealth = maxHealth;
     }
 
     private void Start()
     {
-        ApplyDamage(damageAmount);
+        SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
+        if (sprite == null || sprite.sprite == null) return;
+        GameObject hurtbox = new GameObject("Damage Hurtbox");
+        hurtbox.layer = gameObject.layer;
+        hurtbox.transform.SetParent(transform, false);
+        hurtbox.transform.localPosition = transform.InverseTransformPoint(sprite.bounds.center);
+        Vector3 scale = transform.lossyScale;
+        BoxCollider2D collider = hurtbox.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(sprite.bounds.size.x / Mathf.Max(0.001f, Mathf.Abs(scale.x)) + 0.15f,
+            sprite.bounds.size.y / Mathf.Max(0.001f, Mathf.Abs(scale.y)) + 0.15f);
     }
 
-    public void TakeDamage(int damageAmount, WeaponDamageType weaponType)
+    public void TakeDamage(float damageAmount, PlayerRunSession attacker = null)
     {
-        EliteMonster elite = GetComponent<EliteMonster>();
-        if (elite != null)
-        {
-            damageAmount = elite.ApplyResistance(damageAmount, weaponType);
-        }
-
-        ApplyDamage(damageAmount);
-    }
-
-    private void ApplyDamage(int damageAmount)
-    {
-        if (isDead || damageAmount <= 0)
+        if (isDead || damageAmount <= 0 || float.IsNaN(damageAmount) || float.IsInfinity(damageAmount))
         {
             return;
         }
 
-        currentHp -= damageAmount;
-        Log($"Monster Hit: {currentHp}/{maxHp}");
+        currentHealth -= damageAmount;
+        Log($"Monster Hit: {currentHealth}/{maxHealth}");
 
-        if (currentHp <= 0)
+        if (currentHealth <= 0)
         {
             Die(attacker);
         }
@@ -62,7 +62,7 @@ public class MonsterHealth : MonoBehaviour
     private void Die(PlayerRunSession attacker)
     {
         isDead = true;
-        currentHp = 0;
+        currentHealth = 0;
         Log("Monster Dead");
         if (attacker != null && attacker.State == PlayerRunState.Running)
         {
