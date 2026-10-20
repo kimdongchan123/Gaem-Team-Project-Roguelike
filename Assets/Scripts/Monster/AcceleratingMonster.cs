@@ -52,8 +52,6 @@ public class AcceleratingMonster : MonoBehaviour
         float distance = Vector3.Distance(transform.position, playerTransform.position);
         float attackRange = monsterData != null ? monsterData.attackRange : 1f;
 
-        Debug.Log("[AcceleratingMonster] 거리: " + distance + ", attackRange: " + attackRange);
-
         if (distance <= attackRange)
         {
             UpdateAttack();

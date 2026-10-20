@@ -128,7 +128,7 @@ MonoBehaviour:
     m_Bits: 64
   targets: []
   nearestTarget: {fileID: 0}
-  monsterData: {fileID: 0}
+  monsterData: {fileID: 11400000, guid: c4faea7970506e640be933d0f2de7446, type: 2}
 --- !u!114 &-5219017097130447942
 MonoBehaviour:
   m_ObjectHideFlags: 0

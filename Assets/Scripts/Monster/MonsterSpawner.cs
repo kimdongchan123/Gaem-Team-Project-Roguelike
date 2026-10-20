@@ -8,12 +8,82 @@ public class MonsterSpawner : MonoBehaviour
     public Transform spawnAreaCenter;
     public float minSpawnDistance = 1.5f;
     public int maxSpawnAttempts = 30;
+    [Tooltip("플레이어가 스폰 영역에 들어온 뒤 몬스터가 움직이고 공격하기까지의 대기 시간(초)")]
+    public float activationDelay = 1f;
 
     private readonly List<GameObject> spawnedMonsters = new List<GameObject>();
+    private Transform player;
+    private bool activated;
+    private bool playerDetected;
+    private float activateTime;
 
     private void Start()
     {
         SpawnAllOnce();
+    }
+
+    private void Update()
+    {
+        if (activated)
+        {
+            return;
+        }
+
+        if (playerDetected)
+        {
+            if (Time.time >= activateTime)
+            {
+                ActivateMonsters();
+            }
+            return;
+        }
+
+        if (player == null)
+        {
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject == null)
+            {
+                return;
+            }
+            player = playerObject.transform;
+        }
+
+        Vector2 center = spawnAreaCenter != null
+            ? (Vector2)spawnAreaCenter.position
+            : (Vector2)transform.position;
+        Vector2 offset = (Vector2)player.position - center;
+
+        if (Mathf.Abs(offset.x) <= spawnAreaSize.x / 2f && Mathf.Abs(offset.y) <= spawnAreaSize.y / 2f)
+        {
+            playerDetected = true;
+            activateTime = Time.time + activationDelay;
+        }
+    }
+
+    private void ActivateMonsters()
+    {
+        activated = true;
+
+        foreach (GameObject monster in spawnedMonsters)
+        {
+            if (monster != null)
+            {
+                SetMonsterAI(monster, true);
+            }
+        }
+    }
+
+    private static void SetMonsterAI(GameObject monster, bool enabled)
+    {
+        foreach (MonoBehaviour behaviour in monster.GetComponents<MonoBehaviour>())
+        {
+            if (behaviour is MonsterChase || behaviour is MonsterAttack || behaviour is MonsterRangedAttack
+                || behaviour is RangeMonster || behaviour is ChargeMonster || behaviour is SuicideMonster
+                || behaviour is AcceleratingMonster || behaviour is EliteMonster || behaviour is MonsterLaser)
+            {
+                behaviour.enabled = enabled;
+            }
+        }
     }
 
     public void SpawnAllOnce()
@@ -53,6 +123,11 @@ public class MonsterSpawner : MonoBehaviour
         if (chase != null)
         {
             chase.monsterData = data;
+        }
+
+        if (!activated)
+        {
+            SetMonsterAI(monster, false);
         }
 
         return monster;
