@@ -4873,9 +4873,6 @@ MonoBehaviour:
   - itemName: "\uD68C\uBCF5\uC57D"
     price: 30
     stock: 3
-  - itemName: "\uD0C4\uC57D \uC0C1\uC790"
-    price: 20
-    stock: 5
   - itemName: "\uBC29\uC5B4\uAD6C"
     price: 70
     stock: 1

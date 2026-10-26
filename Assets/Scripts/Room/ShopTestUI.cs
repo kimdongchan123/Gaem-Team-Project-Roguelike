@@ -22,7 +22,6 @@ public class ShopTestUI : MonoBehaviour
     [SerializeField] private ShopItem[] items =
     {
         new ShopItem { itemName = "회복약", price = 30, stock = 3 },
-        new ShopItem { itemName = "탄약 상자", price = 20, stock = 5 },
         new ShopItem { itemName = "방어구", price = 70, stock = 1 }
     };
 
