@@ -16,6 +16,9 @@ public class MonsterSpawner : MonoBehaviour
     private bool activated;
     private bool playerDetected;
     private float activateTime;
+    private RoomSystem owningRoom;
+    private bool hasSpawned;
+    public void BindRoom(RoomSystem room) { owningRoom = room; }
 
     private void Start()
     {
@@ -26,6 +29,9 @@ public class MonsterSpawner : MonoBehaviour
     {
         if (activated)
         {
+            if (owningRoom != null && !owningRoom.IsCleared && hasSpawned && spawnedMonsters.TrueForAll(m => m == null ||
+                (m.GetComponent<MonsterHealth>() != null && m.GetComponent<MonsterHealth>().IsDead)))
+                owningRoom.ClearRoom();
             return;
         }
 
@@ -112,6 +118,7 @@ public class MonsterSpawner : MonoBehaviour
         GameObject monster = Instantiate(data.monsterPrefab, spawnPos, Quaternion.identity);
         monster.name = data.monsterName;
         spawnedMonsters.Add(monster);
+        hasSpawned = true;
 
         MonsterHealth health = monster.GetComponent<MonsterHealth>();
         if (health != null)

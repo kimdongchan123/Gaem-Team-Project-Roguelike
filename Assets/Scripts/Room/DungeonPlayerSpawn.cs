@@ -57,13 +57,8 @@ public class DungeonPlayerSpawn : MonoBehaviour
         Physics2D.SyncTransforms();
 
         Debug.Log($"[DungeonPlayerSpawn] 플레이어 시작 지점 이동: {spawnPosition}", this);
-        Debug.Log(
-            $"[DungeonPlayerSpawn] 로비 스탯 유지 확인 - " +
-            $"체력 Lv.{LobbySessionData.HealthLevel}, " +
-            $"공격 Lv.{LobbySessionData.AttackLevel}, " +
-            $"속도 Lv.{LobbySessionData.MoveSpeedLevel}, " +
-            $"남은 포인트 {LobbySessionData.RemainingPoints}",
-            this
-        );
+        PlayerStats stats = playerTarget.GetComponent<PlayerStats>();
+        if (stats != null)
+            Debug.Log($"[DungeonPlayerSpawn] 적용 스탯 - 체력 {stats.MaxHealth}, 공격 배수 {stats.AttackMultiplier}, 속도 {stats.MoveSpeed}", this);
     }
 }

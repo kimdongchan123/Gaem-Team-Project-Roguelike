@@ -19,6 +19,22 @@ public class PlayerMenuUI : MonoBehaviour
     private Font font;
     private PlayerRunState previousState;
     private bool inventoryView, storageView;
+    private bool lobbyPanelOpen;
+    public bool IsLobbyPanelOpen => lobbyPanelOpen && session != null && session.State == PlayerRunState.Lobby;
+
+    public void OpenLobbyUpgrades()
+    {
+        if (session == null || session.State != PlayerRunState.Lobby) return;
+        lobbyPanelOpen = true; inventoryView = storageView = false;
+        session.SetMenuOpen(true); Rebuild();
+    }
+
+    public void CloseLobbyUpgrades()
+    {
+        if (!lobbyPanelOpen) return;
+        lobbyPanelOpen = false; inventoryView = false;
+        session.SetMenuOpen(false); Rebuild();
+    }
     private bool originalCursorVisible;
     private CursorLockMode originalCursorLock;
     private int page;
@@ -55,9 +71,14 @@ public class PlayerMenuUI : MonoBehaviour
         if (canvas == null) return;
         if (previousState != session.State)
         {
-            previousState = session.State; inventoryView = storageView = false; page = 0; Rebuild();
+            previousState = session.State; inventoryView = storageView = lobbyPanelOpen = false; page = 0; Rebuild();
         }
-        if (session.State == PlayerRunState.Running && Keyboard.current != null &&
+        if (session.State == PlayerRunState.Lobby && lobbyPanelOpen && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            CloseLobbyUpgrades();
+        }
+        else if ((session.State == PlayerRunState.Running || (session.UsesSceneFlow && session.State == PlayerRunState.Lobby)) &&
+            (!session.MenuOpen || inventoryView) && Keyboard.current != null &&
             (Keyboard.current.iKey.wasPressedThisFrame || Keyboard.current.escapeKey.wasPressedThisFrame))
         {
             inventoryView = !inventoryView; storageView = false; page = 0;
@@ -71,7 +92,7 @@ public class PlayerMenuUI : MonoBehaviour
                 Mouse.current.position.ReadValue(),null,out Vector2 point);
             reticle.anchoredPosition = point;
         }
-        runText.text = session.State == PlayerRunState.Running ? $"{session.Floor}층 · {session.Location}\n크리스탈 +{session.RunCrystals} · 일반 {session.NormalKills} / 엘리트 {session.EliteKills}\nI 가방 · E 줍기\nQ / 휠 무기 교체" : "";
+        runText.text = session.State == PlayerRunState.Running ? $"{session.Floor}층 · {session.Location}\n크리스탈 +{session.RunCrystals} · 일반 {session.NormalKills} / 엘리트 {session.EliteKills}\nI 가방 · E 줍기\nQ / 휠 무기 교체" : session.UsesSceneFlow ? "로비\nE NPC / 던전 입장\nI 가방" : "";
         if (Time.unscaledTime >= nextPickupRefresh)
         {
             nextPickupRefresh = Time.unscaledTime+0.2f; pickupText.text = "";
@@ -90,6 +111,7 @@ public class PlayerMenuUI : MonoBehaviour
     {
         if (panel != null) { panel.SetActive(false); Destroy(panel); }
         if (session.State == PlayerRunState.Running && !inventoryView) return;
+        if (session.UsesSceneFlow && session.State == PlayerRunState.Lobby && !lobbyPanelOpen && !inventoryView) return;
         RectTransform root = Rect("Menu",canvas.transform,new Vector2(190,-60),new Vector2(900,600));
         panel = root.gameObject; Image(root,new Color(0.035f,0.05f,0.075f,0.98f));
         if (session.State == PlayerRunState.Dead) { BuildDeath(root); return; }
@@ -114,7 +136,11 @@ public class PlayerMenuUI : MonoBehaviour
         }
         Button(root,new Vector2(30,-475),new Vector2(255,40),"초기화 및 전액 환급",()=>{session.ResetUpgrades();Rebuild();});
         Button(root,new Vector2(310,-475),new Vector2(255,40),"가방 / 보관함",()=>{inventoryView=true;page=0;Rebuild();});
-        Button(root,new Vector2(590,-475),new Vector2(275,40),"탐험 시작",()=>{session.BeginRun();Rebuild();});
+        Button(root,new Vector2(590,-475),new Vector2(275,40),session.UsesSceneFlow ? "닫기" : "탐험 시작",()=>
+        {
+            if (session.UsesSceneFlow) CloseLobbyUpgrades();
+            else {session.BeginRun();Rebuild();}
+        });
         Label(root,new Vector2(30,-535),new Vector2(835,50),"가방 초과분은 보관함으로 이동합니다. E로 근처 아이템을 줍습니다.\n강화와 남은 아이템은 이 컴퓨터에 저장됩니다.",15);
     }
     private void BuildInventory(RectTransform root)
@@ -158,7 +184,7 @@ public class PlayerMenuUI : MonoBehaviour
         Button(root,new Vector2(30,-530),new Vector2(160,38),"이전",()=>{page--;Rebuild();},page>0);
         Label(root,new Vector2(210,-530),new Vector2(150,38),$"{page+1} / {pages}",17);
         Button(root,new Vector2(365,-530),new Vector2(160,38),"다음",()=>{page++;Rebuild();},page+1<pages);
-        Button(root,new Vector2(650,-530),new Vector2(215,38),"돌아가기",()=>{inventoryView=false;session.SetMenuOpen(false);Rebuild();});
+        Button(root,new Vector2(650,-530),new Vector2(215,38),"돌아가기",()=>{inventoryView=false;session.SetMenuOpen(lobbyPanelOpen);Rebuild();});
     }
     private class InventoryRow { public WeaponData weapon; public ConsumableData consumable; public int index,count; }
     private void BuildDeath(RectTransform root)

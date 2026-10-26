@@ -55,13 +55,20 @@ public class ShopTestUI : MonoBehaviour
 
     public void ToggleShop()
     {
+        PlayerRunSession session = FindAnyObjectByType<PlayerRunSession>();
+        if (!isOpen && session != null && session.MenuOpen) return;
         isOpen = !isOpen;
+        if (session != null) session.SetMenuOpen(isOpen);
     }
 
     public void CloseShop()
     {
         isOpen = false;
+        PlayerRunSession session = FindAnyObjectByType<PlayerRunSession>();
+        if (session != null) session.SetMenuOpen(false);
     }
+
+    private void OnDisable() { if (isOpen) CloseShop(); }
 
     private void PurchaseItem(int itemIndex)
     {

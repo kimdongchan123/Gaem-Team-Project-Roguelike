@@ -9,23 +9,27 @@ if (!$UnityPath) {
 }
 if (!(Test-Path -LiteralPath $UnityPath)) { throw "Unity editor not found: $UnityPath" }
 
-# Isolate tests from the open project and from the sample scene bootstrap.
+# Use the real assets and scenes in a separate project; saves use a test company/product.
 $validationRoot = Join-Path $projectRoot 'Temp/CombatValidation'
 New-Item -ItemType Directory -Force -Path "$validationRoot/Assets/Editor", "$validationRoot/Packages", "$validationRoot/ProjectSettings" | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'Assets/Scripts') -Destination "$validationRoot/Assets" -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $projectRoot 'Assets/Resources') -Destination "$validationRoot/Assets" -Recurse -Force
-New-Item -ItemType Directory -Force -Path "$validationRoot/Assets/Fonts" | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'Assets/TextMesh Pro/Fonts/SBAggroL.otf'), (Join-Path $projectRoot 'Assets/TextMesh Pro/Fonts/SBAggroL.otf.meta') -Destination "$validationRoot/Assets/Fonts" -Force
+foreach ($file in @('SBAggroL.otf', 'SBAggroL.otf.meta')) {
+    $oldFont = Join-Path $validationRoot "Assets/Fonts/$file"
+    if (Test-Path -LiteralPath $oldFont) { Remove-Item -LiteralPath $oldFont }
+}
+Get-ChildItem -LiteralPath (Join-Path $projectRoot 'Assets') | Copy-Item -Destination "$validationRoot/Assets" -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'ProjectSettings/ProjectVersion.txt') -Destination "$validationRoot/ProjectSettings" -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'CombatValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'PlayerDesignValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
-foreach ($suffix in @('.cs', '.cs.meta')) {
-    $bootstrap = Join-Path $validationRoot "Assets/Scripts/Player/PlayerSystemTestBootstrap$suffix"
-    if (Test-Path -LiteralPath $bootstrap) { Remove-Item -LiteralPath $bootstrap }
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'RoomIntegrationValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
+$sourceManifest = Get-Content -LiteralPath (Join-Path $projectRoot 'Packages/manifest.json') -Raw | ConvertFrom-Json
+$runtimeDependencies = [ordered]@{}
+foreach ($entry in $sourceManifest.dependencies.PSObject.Properties) {
+    if ($entry.Name -like 'com.unity.modules.*' -or $entry.Name -in @('com.unity.inputsystem', 'com.unity.ugui', 'com.unity.render-pipelines.universal')) {
+        $runtimeDependencies[$entry.Name] = $entry.Value
+    }
 }
-@'
-{"dependencies":{"com.unity.inputsystem":"1.18.0","com.unity.ugui":"2.0.0","com.unity.modules.physics2d":"1.0.0","com.unity.modules.ui":"1.0.0","com.unity.modules.audio":"1.0.0","com.unity.modules.imgui":"1.0.0"}}
-'@ | Set-Content -LiteralPath "$validationRoot/Packages/manifest.json"
+@{dependencies = $runtimeDependencies} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$validationRoot/Packages/manifest.json"
+Copy-Item -LiteralPath (Join-Path $projectRoot 'ProjectSettings/TagManager.asset'), (Join-Path $projectRoot 'ProjectSettings/Physics2DSettings.asset') -Destination "$validationRoot/ProjectSettings" -Force
 
 $logPath = Join-Path $validationRoot 'validation.log'
 $unityArguments = @('-batchmode', '-nographics', '-projectPath', "`"$validationRoot`"", '-executeMethod', 'CombatValidation.Run', '-logFile', "`"$logPath`"")

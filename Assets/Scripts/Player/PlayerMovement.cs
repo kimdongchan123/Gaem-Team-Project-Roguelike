@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerStats stats;
     private PlayerRunSession session;
     private SpriteRenderer body;
+    private Rigidbody2D rigidBody;
     private Vector2 moveInput;
     private Vector2 dashDirection;
     private bool isDashing;
@@ -29,14 +30,22 @@ public class PlayerMovement : MonoBehaviour
     {
         playerHealth = GetComponent<PlayerHealth>(); stats = GetComponent<PlayerStats>();
         session = GetComponent<PlayerRunSession>(); body = GetComponent<SpriteRenderer>();
+        rigidBody = GetComponent<Rigidbody2D>();
+        if (rigidBody != null)
+        {
+            rigidBody.gravityScale = 0f;
+            rigidBody.freezeRotation = true;
+            rigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        }
     }
     public void SetAimPivot(Transform pivot) { aimPivot = pivot; }
     public void ResetMovement() { isDashing = false; moveInput = Vector2.zero; nextDashTime = 0f; }
     private void Update()
     {
-        if ((playerHealth != null && playerHealth.IsDead) || (session != null && !session.CanAct))
+        if ((playerHealth != null && playerHealth.IsDead) || (session != null && !session.CanMove))
         { moveInput = Vector2.zero; isDashing = false; return; }
-        ReadMoveInput(); LookAtMouse(); TryStartDash(); UpdateDashState(); MovePlayer();
+        ReadMoveInput(); LookAtMouse(); TryStartDash(); UpdateDashState();
+        if (rigidBody == null) MovePlayer();
     }
     public static Vector2 NormalizeMovement(float x, float y) => new Vector2(x,y).normalized;
     private void ReadMoveInput()
@@ -67,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
     public bool TryDash()
     {
         if (isDashing || Time.time < nextDashTime || (playerHealth != null && playerHealth.IsDead) ||
-            (session != null && !session.CanAct)) return false;
+            (session != null && !session.CanMove)) return false;
         dashDirection = moveInput.sqrMagnitude > 0f ? moveInput : AimDirection.normalized;
         if (dashDirection.sqrMagnitude <= 0f) return false;
         isDashing = true; dashEndTime = Time.time+dashDuration; nextDashTime = Time.time+DashCooldown;
@@ -76,6 +85,19 @@ public class PlayerMovement : MonoBehaviour
     private void UpdateDashState() { if (isDashing && Time.time >= dashEndTime) isDashing = false; }
     private void MovePlayer()
     {
-        transform.position += (Vector3)(isDashing ? dashDirection : moveInput) * (isDashing ? dashSpeed : MoveSpeed) * Time.deltaTime;
+        Vector2 velocity = (isDashing ? dashDirection : moveInput) * (isDashing ? dashSpeed : MoveSpeed);
+        if (rigidBody != null) rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
+        else transform.position += (Vector3)velocity * Time.deltaTime;
+    }
+
+    private void FixedUpdate()
+    {
+        if (rigidBody == null) return;
+        if ((playerHealth != null && playerHealth.IsDead) || (session != null && !session.CanMove))
+        {
+            rigidBody.linearVelocity = Vector2.zero;
+            return;
+        }
+        MovePlayer();
     }
 }

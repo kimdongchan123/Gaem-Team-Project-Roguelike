@@ -14,6 +14,7 @@ public class PlayerHealth : MonoBehaviour
     private bool isDead;
     private PlayerStats stats;
     private PlayerRunSession session;
+    private Color originalColor = Color.white;
     public bool IsInvincible => Time.time < invincibleEndTime;
 
     public int CurrentHealth => currentHealth;
@@ -24,6 +25,8 @@ public class PlayerHealth : MonoBehaviour
     {
         stats = GetComponent<PlayerStats>();
         session = GetComponent<PlayerRunSession>();
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        if (sprite != null) originalColor = sprite.color;
         ResetHealth();
     }
 
@@ -31,7 +34,7 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = MaxHealth; isDead = false; invincibleEndTime = 0f;
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-        if (sprite != null) sprite.color = Color.white;
+        if (sprite != null) sprite.color = originalColor;
     }
 
     public void TakeDamage(int damageAmount)

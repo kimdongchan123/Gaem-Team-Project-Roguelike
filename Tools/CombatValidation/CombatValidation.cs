@@ -11,12 +11,20 @@ public static class CombatValidation
     private static int frames;
     private static int passed;
     static CombatValidation() { EditorApplication.update += Tick; }
-    public static void Run() { SessionState.SetBool(Pending, true); EditorApplication.EnterPlaymode(); }
+    public static void Run()
+    {
+        PlayerSettings.companyName = "LastShelterTests";
+        PlayerSettings.productName = "CombatValidation";
+        EditorBuildSettings.scenes = new[] {
+            new EditorBuildSettingsScene("Assets/Scenes/LobbyScene.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/RoomSystemTest.unity", true) };
+        SessionState.SetBool(Pending, true); EditorApplication.EnterPlaymode();
+    }
     private static void Tick()
     {
         if (!SessionState.GetBool(Pending, false) || !EditorApplication.isPlaying || ++frames < 8) return;
         SessionState.SetBool(Pending, false);
-        try { Execute(); Debug.Log("COMBAT_VALIDATION_SUCCESS: " + passed + " checks"); EditorApplication.Exit(0); }
+        try { Execute(); RoomIntegrationValidation.Begin(passed); }
         catch (Exception ex) { Debug.LogException(ex); EditorApplication.Exit(1); }
     }
     private static void Assert(bool value, string name) { if (!value) throw new Exception(name); passed++; Debug.Log("PASS: " + name); }

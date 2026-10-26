@@ -59,7 +59,7 @@ public class PlayerWeaponHud : MonoBehaviour
     {
         if (canvasObject != null)
         {
-            canvasObject.SetActive(session == null || session.CanAct);
+            canvasObject.SetActive(session == null || session.CanMove);
             Refresh();
         }
     }
@@ -80,6 +80,7 @@ public class PlayerWeaponHud : MonoBehaviour
         bool lowMana = weaponController != null && !weaponController.HasEnoughMana;
         float cooldown = weaponController != null ? weaponController.AttackCooldownRemaining : 0f;
         statusText.text = dead ? "사망" : weapon == null ? "무기 없음" : lowMana ? "마나 부족 · 회복 중" : cooldown > 0f ? $"재사용 대기  {cooldown:0.0}초" : "공격 준비 완료";
+        if (session != null && session.State == PlayerRunState.Lobby) statusText.text = "로비 · E 상호작용 / I 가방";
         statusText.color = dead || lowMana ? new Color(1f, 0.65f, 0.35f) : new Color(0.55f, 0.9f, 0.75f);
     }
 

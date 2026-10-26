@@ -51,6 +51,12 @@ public class LobbyDungeonEntrance : MonoBehaviour
 
     private void EnterDungeon()
     {
+        PlayerRunSession session = FindAnyObjectByType<PlayerRunSession>();
+        if (session != null && session.UsesSceneFlow)
+        {
+            if (!session.MenuOpen) session.EnterDungeon();
+            return;
+        }
         if (string.IsNullOrWhiteSpace(dungeonSceneName))
         {
             Debug.LogError("[LobbyDungeonEntrance] Dungeon Scene Name이 비어 있습니다.", this);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum PlayerRunState { Lobby, Running, Dead }
 
@@ -24,6 +25,10 @@ public class PlayerRunSession : MonoBehaviour
     public string Location { get; private set; } = "샘플 전투장";
     public bool MenuOpen { get; private set; }
     public bool CanAct => State == PlayerRunState.Running && !MenuOpen;
+    public bool UsesSceneFlow { get; private set; }
+    public bool CanMove => !MenuOpen && (State == PlayerRunState.Running || (UsesSceneFlow && State == PlayerRunState.Lobby));
+    private string lobbySceneName = "LobbyScene";
+    private string dungeonSceneName = "RoomSystemTest";
     public float SurvivalSeconds => State == PlayerRunState.Running ? Mathf.Max(0f, Time.time - startedAt) : Result != null ? Result.survivalSeconds : 0f;
     public event Action RunStarted;
     public event Action LobbyEntered;
@@ -42,7 +47,23 @@ public class PlayerRunSession : MonoBehaviour
         ApplyUpgrades();
     }
 
-    public bool BeginRun()
+    public void ConfigureSceneFlow(string lobby, string dungeon)
+    {
+        UsesSceneFlow = true;
+        lobbySceneName = lobby;
+        dungeonSceneName = dungeon;
+    }
+
+    public bool EnterDungeon()
+    {
+        if (!UsesSceneFlow || State != PlayerRunState.Lobby || MenuOpen || !Application.CanStreamedLevelBeLoaded(dungeonSceneName)) return false;
+        inventory.SavePersistentWeapons(Progression);
+        LobbySessionData.RequestDungeonEntry();
+        SceneManager.LoadScene(dungeonSceneName);
+        return true;
+    }
+
+    public bool BeginRun(bool resetPosition = true)
     {
         if (Progression == null || State != PlayerRunState.Lobby) return false;
         SetMenuOpen(false);
@@ -53,7 +74,7 @@ public class PlayerRunSession : MonoBehaviour
         if (movement != null) movement.ResetMovement();
         var controller = GetComponent<PlayerWeaponController>();
         if (controller != null) controller.ResetCooldown();
-        transform.position = Vector3.zero;
+        if (resetPosition) transform.position = Vector3.zero;
         transform.rotation = Quaternion.identity;
         RunCrystals = NormalKills = EliteKills = 0;
         Floor = 1;
@@ -103,10 +124,16 @@ public class PlayerRunSession : MonoBehaviour
     public bool ReturnToLobby()
     {
         if (State != PlayerRunState.Dead) return false;
+        if (UsesSceneFlow && !Application.CanStreamedLevelBeLoaded(lobbySceneName))
+        {
+            Debug.LogError($"로비 씬을 불러올 수 없습니다: {lobbySceneName}", this);
+            return false;
+        }
         SetMenuOpen(false);
         State = PlayerRunState.Lobby;
         ApplyUpgrades();
         LobbyEntered?.Invoke();
+        if (UsesSceneFlow) SceneManager.LoadScene(lobbySceneName);
         return true;
     }
 

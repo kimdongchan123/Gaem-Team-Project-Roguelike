@@ -20,6 +20,8 @@ public class MonsterHealth : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+        EliteMonster elite = GetComponent<EliteMonster>();
+        if (elite != null && elite.resistanceType != EliteResistanceType.None) isElite = true;
     }
 
     public void Init(MonsterData data)
