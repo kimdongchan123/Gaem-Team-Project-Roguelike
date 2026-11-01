@@ -35,13 +35,12 @@ public class MonsterChase : MonoBehaviour
         {
             return;
         }
-        if (scanner.nearestTarget != null)
+        // 사거리 안에서는 멈추고, 벗어나면 다시 추적 (moveSpeed는 건드리지 않음)
+        if (scanner != null && scanner.nearestTarget != null)
         {
-            moveSpeed = 0f;
+            return;
         }
-        else
-        {
-            transform.position = Vector2.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
-        }
+
+        transform.position = Vector2.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
     }
 }

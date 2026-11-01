@@ -20,9 +20,27 @@ public class MonsterSpawner : MonoBehaviour
     private bool hasSpawned;
     public void BindRoom(RoomSystem room) { owningRoom = room; }
 
+    // 연결된 방이 없거나 이미 들어간 방이면 공격 가능
+    private bool CanBeDamaged => owningRoom == null || owningRoom.HasBeenEntered;
+
     private void Start()
     {
+        if (owningRoom != null) owningRoom.Entered += OnRoomEntered;
         SpawnAllOnce();
+    }
+
+    private void OnDestroy()
+    {
+        if (owningRoom != null) owningRoom.Entered -= OnRoomEntered;
+    }
+
+    private void OnRoomEntered(RoomSystem room)
+    {
+        foreach (GameObject monster in spawnedMonsters)
+        {
+            MonsterHealth health = monster != null ? monster.GetComponent<MonsterHealth>() : null;
+            if (health != null) health.SetDamageable(true);
+        }
     }
 
     private void Update()
@@ -124,6 +142,7 @@ public class MonsterSpawner : MonoBehaviour
         if (health != null)
         {
             health.Init(data);
+            health.SetDamageable(CanBeDamaged);
         }
 
         MonsterChase chase = monster.GetComponent<MonsterChase>();

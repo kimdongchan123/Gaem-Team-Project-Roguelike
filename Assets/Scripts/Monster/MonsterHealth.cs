@@ -13,8 +13,11 @@ public class MonsterHealth : MonoBehaviour
 
     private float currentHealth;
     private bool isDead;
+    private bool isDamageable = true;
+    private Collider2D hurtboxCollider;
 
     public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
     public bool IsDead => isDead;
 
     private void Awake()
@@ -32,6 +35,7 @@ public class MonsterHealth : MonoBehaviour
 
     private void Start()
     {
+        if (GetComponent<MonsterHealthBar>() == null) gameObject.AddComponent<MonsterHealthBar>();
         SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
         if (sprite == null || sprite.sprite == null) return;
         GameObject hurtbox = new GameObject("Damage Hurtbox");
@@ -43,11 +47,20 @@ public class MonsterHealth : MonoBehaviour
         collider.isTrigger = true;
         collider.size = new Vector2(sprite.bounds.size.x / Mathf.Max(0.001f, Mathf.Abs(scale.x)) + 0.15f,
             sprite.bounds.size.y / Mathf.Max(0.001f, Mathf.Abs(scale.y)) + 0.15f);
+        hurtboxCollider = collider;
+        hurtboxCollider.enabled = isDamageable;
+    }
+
+    // 플레이어가 방에 들어오기 전에는 피격 판정을 꺼서 공격이 닿지 않게 함 (MonsterSpawner가 호출)
+    public void SetDamageable(bool damageable)
+    {
+        isDamageable = damageable;
+        if (hurtboxCollider != null) hurtboxCollider.enabled = damageable;
     }
 
     public void TakeDamage(float damageAmount, PlayerRunSession attacker = null)
     {
-        if (isDead || damageAmount <= 0 || float.IsNaN(damageAmount) || float.IsInfinity(damageAmount))
+        if (isDead || !isDamageable || damageAmount <= 0 || float.IsNaN(damageAmount) || float.IsInfinity(damageAmount))
         {
             return;
         }
