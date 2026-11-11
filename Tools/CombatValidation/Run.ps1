@@ -1,4 +1,4 @@
-param([string]$UnityPath)
+param([string]$UnityPath, [switch]$CapturePreview)
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -21,18 +21,23 @@ Copy-Item -LiteralPath (Join-Path $projectRoot 'ProjectSettings/ProjectVersion.t
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'CombatValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'PlayerDesignValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'RoomIntegrationValidation.cs') -Destination "$validationRoot/Assets/Editor" -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'PrototypePreview.cs') -Destination "$validationRoot/Assets/Editor" -Force
 $sourceManifest = Get-Content -LiteralPath (Join-Path $projectRoot 'Packages/manifest.json') -Raw | ConvertFrom-Json
 $runtimeDependencies = [ordered]@{}
 foreach ($entry in $sourceManifest.dependencies.PSObject.Properties) {
-    if ($entry.Name -like 'com.unity.modules.*' -or $entry.Name -in @('com.unity.inputsystem', 'com.unity.ugui', 'com.unity.render-pipelines.universal')) {
+    if ($entry.Name -like 'com.unity.modules.*' -or $entry.Name -in @('com.unity.inputsystem', 'com.unity.ugui', 'com.unity.render-pipelines.universal', 'com.unity.2d.sprite')) {
         $runtimeDependencies[$entry.Name] = $entry.Value
     }
 }
 @{dependencies = $runtimeDependencies} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$validationRoot/Packages/manifest.json"
 Copy-Item -LiteralPath (Join-Path $projectRoot 'ProjectSettings/TagManager.asset'), (Join-Path $projectRoot 'ProjectSettings/Physics2DSettings.asset') -Destination "$validationRoot/ProjectSettings" -Force
+Copy-Item -LiteralPath (Join-Path $projectRoot 'ProjectSettings/GraphicsSettings.asset'), (Join-Path $projectRoot 'ProjectSettings/QualitySettings.asset') -Destination "$validationRoot/ProjectSettings" -Force
 
 $logPath = Join-Path $validationRoot 'validation.log'
 $unityArguments = @('-batchmode', '-nographics', '-projectPath', "`"$validationRoot`"", '-executeMethod', 'CombatValidation.Run', '-logFile', "`"$logPath`"")
+if ($CapturePreview) {
+    $unityArguments = @('-batchmode', '-force-d3d11', '-prototype-preview', '-projectPath', "`"$validationRoot`"", '-executeMethod', 'CombatValidation.Run', '-logFile', "`"$logPath`"")
+}
 $process = Start-Process -FilePath $UnityPath -ArgumentList $unityArguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit(300000)) {
     Stop-Process -Id $process.Id

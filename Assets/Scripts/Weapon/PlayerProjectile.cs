@@ -20,6 +20,7 @@ public class PlayerProjectile : MonoBehaviour
     private PlayerHealth ownerHealth;
     private bool isInitialized;
     private bool hasResolved;
+    private float nextTrailTime;
     private readonly List<Collider2D> overlaps = new List<Collider2D>();
     private readonly List<RaycastHit2D> castHits = new List<RaycastHit2D>();
     private readonly HashSet<MonsterHealth> damagedTargets = new HashSet<MonsterHealth>();
@@ -29,6 +30,7 @@ public class PlayerProjectile : MonoBehaviour
         if (!isInitialized || hasResolved || Time.timeScale <= 0f) return;
         if (attackType == WeaponAttackType.BlackHole)
         {
+            if (PrototypeArt.Enabled) transform.Rotate(0f, 0f, Time.deltaTime * 65f);
             UpdateAreaEffect();
             return;
         }
@@ -60,6 +62,12 @@ public class PlayerProjectile : MonoBehaviour
 
         if (CheckHit(distance)) return;
         transform.position += transform.right * distance;
+        if (PrototypeArt.Enabled && Time.time >= nextTrailTime)
+        {
+            nextTrailTime = Time.time + 0.06f;
+            PrototypeEffect.Emit(PrototypeArt.Shape("pixel"), transform.position,
+                new Color(0.45f, 0.85f, 1f, 0.45f), Vector2.one * 0.055f, 0.13f, Vector2.zero, 0, 3);
+        }
         remainingLifetime -= stepTime;
         if (reachedTarget)
         {
@@ -82,6 +90,12 @@ public class PlayerProjectile : MonoBehaviour
         ownerHealth = null;
         hasResolved = false;
         isInitialized = true;
+        nextTrailTime = Time.time;
+        if (PrototypeArt.Enabled)
+        {
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+            if (renderer != null) { renderer.sprite = PrototypeArt.Shape("bullet"); renderer.color = Color.white; }
+        }
     }
 
     public void Initialize(WeaponData weapon, float damageAmount, Vector2 newTargetPosition, PlayerHealth newOwnerHealth)
@@ -93,6 +107,16 @@ public class PlayerProjectile : MonoBehaviour
         homingTurnSpeed = weapon.HomingTurnSpeed;
         hitRadius = weapon.HitRadius;
         ownerHealth = newOwnerHealth;
+        if (PrototypeArt.Enabled)
+        {
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+            if (renderer != null)
+            {
+                renderer.sprite = attackType == WeaponAttackType.BlackHole ? PrototypeArt.Shape("ring") :
+                    weapon.IsMagicWeapon ? PrototypeArt.Item(0) : PrototypeArt.Shape("bullet");
+                renderer.color = attackType == WeaponAttackType.BlackHole ? new Color(0.55f, 0.4f, 1f) : Color.white;
+            }
+        }
         Vector2 origin = transform.position;
         targetPosition = origin + Vector2.ClampMagnitude(newTargetPosition - origin, weapon.TargetRange);
 
@@ -163,6 +187,7 @@ public class PlayerProjectile : MonoBehaviour
             return;
         }
         hasResolved = true;
+        PrototypeEffect.Impact(transform.position, PrototypeArt.Amber);
         target.TakeDamage(damage, ownerHealth != null ? ownerHealth.GetComponent<PlayerRunSession>() : null);
         Destroy(gameObject);
     }
@@ -182,6 +207,9 @@ public class PlayerProjectile : MonoBehaviour
     {
         if (hasResolved) return;
         hasResolved = true;
+        PrototypeEffect.Emit(PrototypeArt.Shape("ring"), transform.position, PrototypeArt.Amber,
+            Vector2.one * explosionRadius * 0.76f, 0.28f, Vector2.zero, 0, 6, true);
+        PrototypeEffect.Burst(transform.position, PrototypeArt.Amber, 14, 0, 7);
         DamageMonstersInArea();
         DamagePlayerInArea();
         Destroy(gameObject);

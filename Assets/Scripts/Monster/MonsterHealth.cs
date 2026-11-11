@@ -3,6 +3,7 @@ using UnityEngine.Serialization;
 
 public class MonsterHealth : MonoBehaviour
 {
+    public event System.Action<float> Damaged;
     [Header("Health")]
     [SerializeField] private int maxHealth = 3;
     [SerializeField] private bool isElite;
@@ -35,6 +36,7 @@ public class MonsterHealth : MonoBehaviour
 
     private void Start()
     {
+        if (PrototypeArt.Enabled && GetComponent<PrototypeActorVisual>() == null) gameObject.AddComponent<PrototypeActorVisual>();
         if (GetComponent<MonsterHealthBar>() == null) gameObject.AddComponent<MonsterHealthBar>();
         SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
         if (sprite == null || sprite.sprite == null) return;
@@ -66,6 +68,7 @@ public class MonsterHealth : MonoBehaviour
         }
 
         currentHealth -= damageAmount;
+        Damaged?.Invoke(damageAmount);
         Log($"Monster Hit: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
@@ -79,6 +82,14 @@ public class MonsterHealth : MonoBehaviour
         isDead = true;
         currentHealth = 0;
         Log("Monster Dead");
+        if (PrototypeArt.Enabled)
+        {
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+            int layer = renderer != null ? renderer.sortingLayerID : 0;
+            int order = renderer != null ? renderer.sortingOrder + 3 : 3;
+            PrototypeEffect.Burst(transform.position, PrototypeArt.Red, 12, layer, order);
+            PrototypeEffect.Emit(PrototypeArt.Shape("ring"), transform.position, PrototypeArt.Amber, Vector2.one * 0.7f, 0.25f, Vector2.zero, layer, order, true);
+        }
         if (attacker != null && attacker.State == PlayerRunState.Running)
         {
             attacker.RecordKill(isElite);

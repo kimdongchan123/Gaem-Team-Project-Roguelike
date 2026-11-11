@@ -21,7 +21,9 @@ public class WorldPickup : MonoBehaviour
             pickupSprite = Sprite.Create(texture,new Rect(0f,0f,texture.width,texture.height),Vector2.one*0.5f,texture.width);
         }
         renderer.sprite = pickupSprite; renderer.color = color; renderer.sortingOrder = 8;
-        return obj.AddComponent<WorldPickup>();
+        WorldPickup pickup = obj.AddComponent<WorldPickup>();
+        if (PrototypeArt.Enabled) obj.AddComponent<PrototypePickupVisual>();
+        return pickup;
     }
     public static WorldPickup SpawnWeapon(WeaponData weapon, Vector2 position)
     {
@@ -42,7 +44,9 @@ public class WorldPickup : MonoBehaviour
         bool accepted = Weapon != null ? session.GetComponent<PlayerInventory>().TryAddWeapon(Weapon) : Consumable != null ?
             session.GetComponent<PlayerInventory>().TryAddConsumable(Consumable) : session.CollectCrystals(Crystals);
         if (!accepted) return false;
-        collected = true; Destroy(gameObject); return true;
+        collected = true;
+        PrototypeEffect.Impact(transform.position, Consumable != null ? PrototypeArt.Amber : PrototypeArt.Cyan, 0, 10);
+        Destroy(gameObject); return true;
     }
     private void Update()
     {

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public event System.Action<int> Damaged;
     [Header("Health")]
     [SerializeField] private int maxHealth = 8;
     [SerializeField] private float invincibleTimeAfterHit = 0.5f;
@@ -46,6 +47,7 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth -= damageAmount;
         invincibleEndTime = Time.time + invincibleTimeAfterHit;
+        Damaged?.Invoke(damageAmount);
 
         Log($"Player Hit: {currentHealth}/{maxHealth}");
 

@@ -42,6 +42,16 @@ public static class RoomIntegrationValidation
                 Assert(session.Upgrade(PlayerUpgrade.Health)&&session.Upgrade(PlayerUpgrade.AttackPower),"NPC upgrade model applies persistent upgrades");
                 npc.Close();Assert(!session.MenuOpen&&Time.timeScale==1,"NPC closes shared modal cleanly");
                 ValidateWallMovement(session);
+                if(PrototypeArt.Enabled)
+                {
+                    var presentation=session.GetComponent<PrototypeActorVisual>();
+                    Assert(presentation!=null&&presentation.Visual!=null,"Player has replaceable visual child");
+                    Vector3 scale=session.transform.localScale;Vector2 collider=session.GetComponent<CapsuleCollider2D>().size;
+                    Call(presentation,"LateUpdate");
+                    Assert(session.transform.localScale==scale&&session.GetComponent<CapsuleCollider2D>().size==collider,"Animation preserves physics root and collision size");
+                    Assert(PrototypeArt.Actor(true,0)==PrototypeArt.Actor(true,0),"Prototype sprites are shared across actors");
+                }
+                PrototypePreview.Capture("lobby");
                 var inventory=session.GetComponent<PlayerInventory>();
                 inventory.TryAddWeapon(inventory.Weapons[0]);expectedCount=inventory.Weapons.Count;
                 Assert(!session.GetComponent<PlayerWeaponController>().TryAttackAt(Vector2.right),"Lobby weapon cannot fire");
@@ -67,6 +77,7 @@ public static class RoomIntegrationValidation
                 Assert(combatRoom.State==RoomSystem.RoomState.Active,"Entering combat locks the room");
                 var monsters=UnityEngine.Object.FindObjectsByType<MonsterHealth>(FindObjectsSortMode.None);
                 Assert(monsters.Length>0,"Actual dungeon spawns configured monsters");
+                PrototypePreview.Capture("dungeon");
                 foreach(var monster in monsters)monster.TakeDamage(100000,session);
                 Next(4);
             }

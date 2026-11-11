@@ -59,6 +59,11 @@ public static class PlayerSystemFactory
         weaponHud.SetTarget(weaponController, playerObject.GetComponent<PlayerHealth>(), playerMana);
         session.Initialize(progression ?? new PlayerProgression(), catalog, CreateConsumables());
         playerObject.AddComponent<PlayerMenuUI>();
+        if (PrototypeArt.Enabled)
+        {
+            playerObject.AddComponent<PrototypeActorVisual>();
+            PrototypeSceneVisuals.Install();
+        }
 
         return playerObject;
     }

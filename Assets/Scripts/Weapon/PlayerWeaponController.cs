@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerWeaponController : MonoBehaviour
 {
+    public event System.Action<WeaponData, Vector2, Vector2> AttackPerformed;
     [Header("Weapon")]
     [SerializeField] private WeaponData[] weapons;
     [SerializeField] private int startWeaponIndex;
@@ -166,6 +167,7 @@ public class PlayerWeaponController : MonoBehaviour
         }
 
         nextAttackTime = Time.time + weapon.AttackDelay;
+        AttackPerformed?.Invoke(weapon, firePoint.position, firePoint.right);
         return true;
     }
 
